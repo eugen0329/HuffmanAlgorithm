@@ -22,5 +22,4 @@ T shiftList(std::list<T>& list)
     return elem;
 }
 
-
 #endif /* end of include guard: HELPERS_H_VHESKYND */

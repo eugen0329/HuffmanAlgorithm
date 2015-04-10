@@ -16,22 +16,25 @@ class HuffmanCode {
 public:
     struct Node {
         Node(K key = 0, T dat = 0) : key(key), dat(dat), left(NULL), right(NULL) {}
-        Node(Node* left, Node* right, K key = 0) : key(key), dat(0), left(left), right(right) {}
+        Node(Node* left, Node* right) : dat(0), left(left), right(right)
+        {
+            key = left->key + right->key;
+        }
 
         K key;
         T dat;
         Node* left;
         Node* right;
     };
-    typedef std::list<Node*> Nodes;
 
-    typedef std::vector<short> Code;
-    typedef std::map<T, Code> Table;
-    typedef typename std::map<T, int> counters_t;
-    typedef typename std::map<T, int>::iterator countersIter_t;
+    typedef std::list<Node*>          Nodes;
+    typedef std::vector<short>        Code;
+    typedef typename Code::iterator   CodeIt;
+    typedef std::map<T, Code>         Table;
+    typedef typename Table::iterator  TableIt;
+    typedef typename std::map<T, int> Counts;
+    typedef typename Counts::iterator CountsIt;
 
-    typedef typename Table::iterator tableIt_t;
-    typedef typename Code::iterator codeIt_t;
 private:
     Node* root;
     Table table;
@@ -41,12 +44,10 @@ public:
     {
         Nodes nodes;
         makeNodes(buf, nodes);
-        if(nodes.size() == 0) return ;
+        if(nodes.size() == 0) abortem("ERROR: Attempting to create nodes") ;
         while(nodes.size() != 1) {
             nodes.sort([](Node* a, Node* b){ return a->key < b->key; });
-            Node* left = shiftList(nodes);
-            Node* right = shiftList(nodes);
-            nodes.push_back(new Node(left, right, left->key + right->key));
+            nodes.push_back(new Node(shiftList(nodes), shiftList(nodes)) );
         }
         root = nodes.front();
         nodes.pop_front();
@@ -56,15 +57,14 @@ public:
 private:
     void makeNodes(std::string& buf, Nodes& nodes)
     {
-        std::map<T, int> countersMap;
+        Counts counts;
 
         std::string::iterator strLim = buf.end();
-        for(strIter_t it = buf.begin(); it != strLim; ++it) countersMap[*it] ++;
+        for(strIter_t it = buf.begin(); it != strLim; ++it) counts[*it] ++;
 
-        countersIter_t mapLim = countersMap.end();
-        for(countersIter_t c = countersMap.begin(); c != mapLim; ++c) {
+        CountsIt mapLim = counts.end();
+        for(CountsIt c = counts.begin(); c != mapLim; ++c)
             nodes.push_back(new Node((*c).second, (*c).first));
-        }
     }
 
 public:
@@ -87,17 +87,12 @@ public:
         pass(root);
     }
 
-    HuffmanCode(Nodes&);
-    HuffmanCode() { root = new Node; }
-    ~HuffmanCode() {}
-
     void inspectTable()
     {
-        for(tableIt_t it = table.begin(); it != table.end(); ++it) {
+        for(TableIt it = table.begin(); it != table.end(); ++it) {
             std::string code;
-            for(codeIt_t cit = it->second.begin(); cit != it->second.end(); ++cit) {
+            for(CodeIt cit = it->second.begin(); cit != it->second.end(); ++cit)
                 code += (*cit == 1 ? '1' : '0');
-            }
             std::cout <<  it->first << ": " << code << std::endl;
         }
     }
@@ -105,16 +100,18 @@ public:
     {
         std::function<void(Node*)> pass;
         pass = [&pass](Node* node) {
-            if(! node->dat) {
+            if(! node->dat)
                 std::cout << "Node with no data" << std::endl;
-            } else {
+            else
                 std::cout << node->key << ": " << node->dat << std::endl;
-            }
             if(node->left) pass(node->left);
             if(node->right) pass(node->right);
         };
         pass(root);
     }
+
+    HuffmanCode() { root = new Node; }
+    ~HuffmanCode() {}
 };
 
 #endif /* end of include guard: TREE_H_QEQFYJB1 */
