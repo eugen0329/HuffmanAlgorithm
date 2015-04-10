@@ -16,20 +16,29 @@ typedef std::string::iterator strIter_t;
 typedef std::map<char, int> chCountMap_t;
 typedef std::map<char, int>::iterator chCountMapIt_t;
 
+typedef HuffmanCode<char>::Table table_t;
+typedef HuffmanCode<char>::Code code_t;
 typedef HuffmanCode<char>::Node node_t;
 typedef HuffmanCode<char>::Nodes nodes_t;
 typedef nodes_t::iterator nodesIt_t;
 
-int readInpFile(const char *& fname, std::string& buffer);
 
-void displayNodes(nodes_t& list)
+int readInpFile(const char *& fname, std::string& buffer);
+void countChars(std::string& buf, nodes_t& nodesList);
+
+void displayNodes(nodes_t& list);
+
+void inspectTable(table_t& list)
 {
-    for(nodesIt_t it = list.begin(); it != list.end(); ++it)
-        //std::cout << '\'' << (int) (*it)->dat << '\'' << ": " << (*it)->key << std::endl;
-        std::cout << '\'' << (*it)->dat << '\'' << ": " << (*it)->key << std::endl;
+    for(table_t::iterator it = list.begin(); it != list.end(); ++it) {
+        std::string code;
+        for(code_t::iterator cit = it->second.begin(); cit != it->second.end(); ++cit) {
+            code += (*cit == 1 ? '1' : '0');
+        }
+        std::cout <<  it->first << ": " << code << std::endl;
+    }
 }
 
-void countChars(std::string& buf, nodes_t& nodesList);
 
 int main(int argc, const char *argv[])
 {
@@ -37,18 +46,17 @@ int main(int argc, const char *argv[])
         std::cout << "ERROR: Wrong cmdline arguments list" << std::endl;
         return EXIT_FAILURE;
     }
-
     std::string inpBuf;
     if(readInpFile(argv[1], inpBuf) == RVAL_ERR) abortem("Reading file");
 
 
     nodes_t nodes;
     countChars(inpBuf, nodes);
-    std::cout << nodes.size() << std::endl;
 
     HuffmanCode<char> huffman(nodes);
     HuffmanCode<char>::Table* table = huffman.getTable();
-    std::cout << table->size();
+    //huffman.inspect();
+    inspectTable(*table);
 
     //for(HuffmanCode<char>::Table::iterator it = table->begin(); it != table->end(); ++it)
         //std::cout << it->first << ": " << it->second << std::endl;
@@ -81,5 +89,11 @@ void countChars(std::string& buf, nodes_t& nodesList)
         node->key = (*c).second;
         nodesList.push_back(node);
     }
+}
+
+void displayNodes(nodes_t& list)
+{
+    for(nodesIt_t it = list.begin(); it != list.end(); ++it)
+        std::cout << '\'' << (*it)->dat << '\'' << ": " << (*it)->key << std::endl;
 }
 
