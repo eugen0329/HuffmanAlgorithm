@@ -8,7 +8,7 @@
 #include <map>
 
 #include "helpers.h"
-#include "MinHeap.hpp"
+#include "Huffman.hpp"
 
 
 typedef std::string::iterator strIter_t;
@@ -16,16 +16,17 @@ typedef std::string::iterator strIter_t;
 typedef std::map<char, int> chCountMap_t;
 typedef std::map<char, int>::iterator chCountMapIt_t;
 
-typedef MinHeap<char>::Node node_t;
-typedef MinHeap<char>::Nodes nodes_t;
+typedef HuffmanCode<char>::Node node_t;
+typedef HuffmanCode<char>::Nodes nodes_t;
 typedef nodes_t::iterator nodesIt_t;
 
 int readInpFile(const char *& fname, std::string& buffer);
 
-void displayNodesList(nodes_t& list)
+void displayNodes(nodes_t& list)
 {
     for(nodesIt_t it = list.begin(); it != list.end(); ++it)
-        std::cout << '\'' << (int) (*it)->dat << '\'' << ": " << (*it)->key << std::endl;
+        //std::cout << '\'' << (int) (*it)->dat << '\'' << ": " << (*it)->key << std::endl;
+        std::cout << '\'' << (*it)->dat << '\'' << ": " << (*it)->key << std::endl;
 }
 
 void countChars(std::string& buf, nodes_t& nodesList);
@@ -40,10 +41,17 @@ int main(int argc, const char *argv[])
     std::string inpBuf;
     if(readInpFile(argv[1], inpBuf) == RVAL_ERR) abortem("Reading file");
 
+
     nodes_t nodes;
     countChars(inpBuf, nodes);
+    std::cout << nodes.size() << std::endl;
 
-    displayNodesList(nodes);
+    HuffmanCode<char> huffman(nodes);
+    HuffmanCode<char>::Table* table = huffman.getTable();
+    std::cout << table->size();
+
+    //for(HuffmanCode<char>::Table::iterator it = table->begin(); it != table->end(); ++it)
+        //std::cout << it->first << ": " << it->second << std::endl;
 
     return EXIT_SUCCESS;
 }
