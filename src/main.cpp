@@ -4,15 +4,28 @@
 #include <streambuf>
 
 #include <string>
+#include <list>
 #include <map>
 
 #include "helpers.h"
 #include "tree.h"
 
-typedef std::map<char, int> charsCounter_t ;
+struct CharCounter {
+    double count;
+    char ch;
+};
+
+typedef std::string::iterator strIter_t;
+typedef std::map<char, int> chCountMap_t;
+typedef std::map<char, int>::iterator chCountMapIt_t;
+typedef BTree<CharCounter>::Node treeChCountNode_t;
+typedef std::list<treeChCountNode_t*> nodesList_t;
+typedef std::list<treeChCountNode_t*>::iterator nodesListIt_t;
+
 int readInpFile(const char *& fname, std::string& buffer);
 
-void countChars(std::string& buffer, charsCounter_t& charsCounter);
+void displayNodesList(nodesList_t& list);
+void countChars(std::string& buf, nodesList_t& nodesList);
 
 int main(int argc, const char *argv[])
 {
@@ -24,12 +37,18 @@ int main(int argc, const char *argv[])
     std::string inpBuf;
     if(readInpFile(argv[1], inpBuf) == RVAL_ERR) abortem("Reading file");
 
-    charsCounter_t chcount;
-
+    nodesList_t chcount;
     countChars(inpBuf, chcount);
-    std::cout << "Char a count is " << chcount['a'] << std::endl;
+    displayNodesList(chcount);
+
 
     return EXIT_SUCCESS;
+}
+
+void displayNodesList(nodesList_t& list)
+{
+    for(nodesListIt_t it = list.begin(); it != list.end(); ++it)
+        std::cout << '\'' << (int) (*it)->dat.ch << '\'' << ": " << (*it)->dat.count << std::endl;
 }
 
 
@@ -42,11 +61,21 @@ int readInpFile(const char *& fname, std::string& buffer)
     return 0;
 }
 
-void countChars(std::string& buffer, charsCounter_t& charsCounter)
+
+void countChars(std::string& buf, nodesList_t& nodesList)
 {
-    std::string::iterator lim = buffer.end();
-    for(std::string::iterator it = buffer.begin(); it != lim; ++it) {
-        charsCounter[*it] ++;
+    chCountMap_t countersMap;
+
+    std::string::iterator strLim = buf.end();
+    for(strIter_t it = buf.begin(); it != strLim; ++it) countersMap[*it] ++;
+
+    chCountMapIt_t mapLim = countersMap.end();
+    for(chCountMapIt_t c = countersMap.begin(); c != mapLim; ++c) {
+        CharCounter chcount;
+        chcount.ch = (*c).first;
+        chcount.count = (*c).second;
+        treeChCountNode_t* node = new treeChCountNode_t(chcount);
+        nodesList.push_back(node);
     }
 }
 

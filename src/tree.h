@@ -2,14 +2,17 @@
 #define TREE_H_QEQFYJB1
 
 template <typename T> class BTree {
-private:
+public:
     struct Node {
-        Node() : data(NULL), left(NULL), right(NULL) {}
-        T* data;
+        Node() : dat(NULL), left(NULL), right(NULL) {}
+        Node(T dat) : dat(dat), left(NULL), right(NULL) {}
+
+        T dat;
         Node* left;
         Node* right;
     };
 
+private:
     Node* root;
 
 public:
