@@ -8,24 +8,27 @@
 #include <map>
 
 #include "helpers.h"
-#include "tree.h"
+#include "MinHeap.hpp"
 
-struct CharCounter {
-    double count;
-    char ch;
-};
 
 typedef std::string::iterator strIter_t;
+
 typedef std::map<char, int> chCountMap_t;
 typedef std::map<char, int>::iterator chCountMapIt_t;
-typedef BTree<CharCounter>::Node nodeCounter_t;
-typedef std::list<nodeCounter_t*> nodesList_t;
-typedef std::list<nodeCounter_t*>::iterator nodesListIt_t;
+
+typedef MinHeap<char>::Node node_t;
+typedef MinHeap<char>::Nodes nodes_t;
+typedef nodes_t::iterator nodesIt_t;
 
 int readInpFile(const char *& fname, std::string& buffer);
 
-void displayNodesList(nodesList_t& list);
-void countChars(std::string& buf, nodesList_t& nodesList);
+void displayNodesList(nodes_t& list)
+{
+    for(nodesIt_t it = list.begin(); it != list.end(); ++it)
+        std::cout << '\'' << (int) (*it)->dat << '\'' << ": " << (*it)->key << std::endl;
+}
+
+void countChars(std::string& buf, nodes_t& nodesList);
 
 int main(int argc, const char *argv[])
 {
@@ -37,22 +40,12 @@ int main(int argc, const char *argv[])
     std::string inpBuf;
     if(readInpFile(argv[1], inpBuf) == RVAL_ERR) abortem("Reading file");
 
-    nodesList_t chcount;
-    countChars(inpBuf, chcount);
+    nodes_t nodes;
+    countChars(inpBuf, nodes);
 
-    chcount.sort([](const nodeCounter_t* a, const nodeCounter_t* b) {
-        return a->dat.count < b->dat.count;
-    });
-    displayNodesList(chcount);
-
+    displayNodesList(nodes);
 
     return EXIT_SUCCESS;
-}
-
-void displayNodesList(nodesList_t& list)
-{
-    for(nodesListIt_t it = list.begin(); it != list.end(); ++it)
-        std::cout << '\'' << (int) (*it)->dat.ch << '\'' << ": " << (*it)->dat.count << std::endl;
 }
 
 
@@ -66,7 +59,7 @@ int readInpFile(const char *& fname, std::string& buffer)
 }
 
 
-void countChars(std::string& buf, nodesList_t& nodesList)
+void countChars(std::string& buf, nodes_t& nodesList)
 {
     chCountMap_t countersMap;
 
@@ -75,10 +68,9 @@ void countChars(std::string& buf, nodesList_t& nodesList)
 
     chCountMapIt_t mapLim = countersMap.end();
     for(chCountMapIt_t c = countersMap.begin(); c != mapLim; ++c) {
-        CharCounter chcount;
-        chcount.ch = (*c).first;
-        chcount.count = (*c).second;
-        nodeCounter_t* node = new nodeCounter_t(chcount);
+        node_t* node = new node_t;
+        node->dat = (*c).first;
+        node->key = (*c).second;
         nodesList.push_back(node);
     }
 }

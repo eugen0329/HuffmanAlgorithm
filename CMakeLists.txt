@@ -21,6 +21,12 @@ if(NOT PKG_CONFIG_FOUND)
     message(FATAL_ERROR "${BOLD_BLUE}Pkg-confing not found${RESET_COLOR}")
 endif()
 
+#find_package(Boost)
+#if(NOT Boost_FOUND)
+    #message(STATUS "Boost not found")
+    #return()
+#endif()
+
 ######################
 #       General
 ######################
@@ -43,6 +49,7 @@ add_executable(${TARGET} ${SRC_NAMES})
 include_directories(
     ${PROJECT_BINARY_DIR}
     ${SRC_DIR}
+    #${Boost_INCLUDE_DIRS}
 )
 
 target_link_libraries(
