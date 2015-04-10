@@ -25,6 +25,8 @@ endif()
 #       General
 ######################
 
+set (CMAKE_CXX_FLAGS "-Wall -pedantic-errors -g -std=c++11") 
+
 set(TARGET_NAME "bin")
 set(TARGET ${TARGET_NAME})
 set(SRC_DIR "src/")

@@ -18,9 +18,9 @@ struct CharCounter {
 typedef std::string::iterator strIter_t;
 typedef std::map<char, int> chCountMap_t;
 typedef std::map<char, int>::iterator chCountMapIt_t;
-typedef BTree<CharCounter>::Node treeChCountNode_t;
-typedef std::list<treeChCountNode_t*> nodesList_t;
-typedef std::list<treeChCountNode_t*>::iterator nodesListIt_t;
+typedef BTree<CharCounter>::Node nodeCounter_t;
+typedef std::list<nodeCounter_t*> nodesList_t;
+typedef std::list<nodeCounter_t*>::iterator nodesListIt_t;
 
 int readInpFile(const char *& fname, std::string& buffer);
 
@@ -39,6 +39,10 @@ int main(int argc, const char *argv[])
 
     nodesList_t chcount;
     countChars(inpBuf, chcount);
+
+    chcount.sort([](const nodeCounter_t* a, const nodeCounter_t* b) {
+        return a->dat.count < b->dat.count;
+    });
     displayNodesList(chcount);
 
 
@@ -74,7 +78,7 @@ void countChars(std::string& buf, nodesList_t& nodesList)
         CharCounter chcount;
         chcount.ch = (*c).first;
         chcount.count = (*c).second;
-        treeChCountNode_t* node = new treeChCountNode_t(chcount);
+        nodeCounter_t* node = new nodeCounter_t(chcount);
         nodesList.push_back(node);
     }
 }
